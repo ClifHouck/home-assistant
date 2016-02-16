@@ -93,6 +93,8 @@ def setup_scanner(hass, config, see):
                     if data['t'] == 'b':
                         # Not a HA zone, and a beacon so assume mobile
                         MOBILE_BEACONS_ACTIVE[dev_id].append(location)
+                        _LOGGER.error("Added beacon %s", location)
+                        _LOGGER.error("MOBILE_BEACONS_ACTIVE %s", MOBILE_BEACONS_ACTIVE[dev_id])
                 else:
                     # Normal region
                     if not zone.attributes.get('passive'):
@@ -128,8 +130,12 @@ def setup_scanner(hass, config, see):
             see_beacons(dev_id, kwargs)
 
             beacons = MOBILE_BEACONS_ACTIVE[dev_id]
+            _LOGGER.error("Remove beacon %s", location)
+            _LOGGER.error("MOBILE_BEACONS_ACTIVE(pre remove) %s", MOBILE_BEACONS_ACTIVE[dev_id])
+
             if location in beacons:
                 beacons.remove(location)
+            _LOGGER.error("MOBILE_BEACONS_ACTIVE(post remove) %s", MOBILE_BEACONS_ACTIVE[dev_id])
 
         else:
             _LOGGER.error(
