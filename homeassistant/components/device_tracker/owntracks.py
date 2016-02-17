@@ -92,7 +92,9 @@ def setup_scanner(hass, config, see):
                 if zone is None:
                     if data['t'] == 'b':
                         # Not a HA zone, and a beacon so assume mobile
-                        MOBILE_BEACONS_ACTIVE[dev_id].append(location)
+                        beacons = MOBILE_BEACONS_ACTIVE[dev_id]
+                        if location not in beacons:
+                            beacons.append(location)
                         _LOGGER.error("Added beacon %s", location)
                         _LOGGER.error("MOBILE_BEACONS_ACTIVE %s", MOBILE_BEACONS_ACTIVE[dev_id])
                 else:
@@ -148,6 +150,8 @@ def setup_scanner(hass, config, see):
         """ Set active beacons to the current location """
 
         kwargs = kwargs_param.copy()
+        # the battery state applies to the tracking device, not the beacon
+        kwargs.pop('battery', None)
         for beacon in MOBILE_BEACONS_ACTIVE[dev_id]:
             kwargs['dev_id'] = "{}_{}".format(BEACON_DEV_ID, beacon)
             kwargs['host_name'] = beacon
