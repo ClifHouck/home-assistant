@@ -110,32 +110,33 @@ def setup_scanner(hass, config, see):
                 see_beacons(dev_id, kwargs)
 
         elif data['event'] == 'leave':
-            regions = REGIONS_ENTERED[dev_id]
-            if location in regions:
-                regions.remove(location)
-            new_region = regions[-1] if regions else None
+            with LOCK:
+                regions = REGIONS_ENTERED[dev_id]
+                if location in regions:
+                    regions.remove(location)
+                new_region = regions[-1] if regions else None
 
-            if new_region:
-                # Exit to previous region
-                zone = hass.states.get("zone.{}".format(new_region))
-                if not zone.attributes.get('passive'):
-                    kwargs['location_name'] = new_region
-                _set_gps_from_zone(kwargs, zone)
-                _LOGGER.info("Exit from to %s", new_region)
+                if new_region:
+                    # Exit to previous region
+                    zone = hass.states.get("zone.{}".format(new_region))
+                    if not zone.attributes.get('passive'):
+                        kwargs['location_name'] = new_region
+                    _set_gps_from_zone(kwargs, zone)
+                    _LOGGER.info("Exit from to %s", new_region)
 
-            else:
-                _LOGGER.info("Exit to GPS")
+                else:
+                    _LOGGER.info("Exit to GPS")
 
-            see(**kwargs)
-            see_beacons(dev_id, kwargs)
+                see(**kwargs)
+                see_beacons(dev_id, kwargs)
 
-            beacons = MOBILE_BEACONS_ACTIVE[dev_id]
-            _LOGGER.error("Remove beacon %s", location)
-            _LOGGER.error("MOBILE_BEACONS_ACTIVE(pre remove) %s", MOBILE_BEACONS_ACTIVE[dev_id])
+                beacons = MOBILE_BEACONS_ACTIVE[dev_id]
+                _LOGGER.error("Remove beacon %s", location)
+                _LOGGER.error("MOBILE_BEACONS_ACTIVE(pre remove) %s", MOBILE_BEACONS_ACTIVE[dev_id])
 
-            if location in beacons:
-                beacons.remove(location)
-            _LOGGER.error("MOBILE_BEACONS_ACTIVE(post remove) %s", MOBILE_BEACONS_ACTIVE[dev_id])
+                if location in beacons:
+                    beacons.remove(location)
+                _LOGGER.error("MOBILE_BEACONS_ACTIVE(post remove) %s", MOBILE_BEACONS_ACTIVE[dev_id])
 
         else:
             _LOGGER.error(
